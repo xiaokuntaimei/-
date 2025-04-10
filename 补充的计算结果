@@ -1,0 +1,76 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    roc_curve,
+    roc_auc_score,
+    precision_recall_fscore_support,
+    classification_report
+)
+from sklearn.calibration import CalibrationDisplay
+
+# 1. 加载数据
+data = pd.read_csv('date.csv')
+X = data.drop('target', axis=1)
+y = data['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 2. 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 3. 创建并训练随机森林模型
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+# 4. 预测结果
+y_pred = rf.predict(X_test)
+y_proba = rf.predict_proba(X_test)[:, 1]  # 获取正类的概率
+
+# 5. 计算各项指标
+# 基础指标
+accuracy = accuracy_score(y_test, y_pred)
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+
+# 敏感度（召回率）和特异度
+sensitivity = tp / (tp + fn)
+specificity = tn / (tn + fp)
+
+# ROC曲线相关
+fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+auc_score = roc_auc_score(y_test, y_proba)
+
+# Precision, Recall, F1
+precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='binary')
+
+# 6. 打印结果
+print(f"准确度 (Accuracy): {accuracy:.4f}")
+print(f"敏感度 (Sensitivity/Recall): {sensitivity:.4f}")
+print(f"特异度 (Specificity): {specificity:.4f}")
+print(f"AUC分数: {auc_score:.4f}")
+print(f"精确率 (Precision): {precision:.4f}")
+print(f"F1分数: {f1:.4f}")
+print("\n分类报告:")
+print(classification_report(y_test, y_pred))
+
+# 7. 可视化
+plt.figure(figsize=(12, 5))
+
+# ROC曲线
+plt.subplot(1, 2, 1)
+plt.plot(fpr, tpr, label=f'Random Forest (AUC = {auc_score:.2f})')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend(loc='lower right')
+plt.savefig('1.jpg',dpi=1600)
+
+# 校准曲线
+plt.sub
+
+王泽文:
+这个不是word上传的
